@@ -11,6 +11,7 @@ endif()
 macro(SEMMacroBuildCLI)
   set(options
     EXECUTABLE_ONLY
+    BUILD_STATIC_LIBRARY
     NO_INSTALL VERBOSE
     )
   set(oneValueArgs  
@@ -60,6 +61,15 @@ macro(SEMMacroBuildCLI)
     message(WARNING "warning: Specified LOGO_HEADER [${LOCAL_SEM_LOGO_HEADER}] doesn't exist")
     set(LOCAL_SEM_LOGO_HEADER)
   endif()
+  
+  if(LOCAL_SEM_BUILD_STATIC_LIBRARY)
+    if(LOCAL_SEM_EXECUTABLE_ONLY)
+      message(FATAL_ERROR "Option BUILD_STATIC_LIBRARY and EXECUTABLE_ONLY are mutually exclusive !")
+    endif()
+    if(NOT "${LOCAL_SEM_CLI_SHARED_LIBRARY_WRAPPER_CXX}" STREQUAL "")
+      message(FATAL_ERROR "Option BUILD_STATIC_LIBRARY and CLI_SHARED_LIBRARY_WRAPPER_CXX are mutually exclusive !")
+    endif()
+  endif()
 
   foreach(v LOCAL_SEM_CLI_SHARED_LIBRARY_WRAPPER_CXX)
     if(NOT EXISTS "${${v}}")
@@ -83,7 +93,7 @@ macro(SEMMacroBuildCLI)
     endif()
   endif()
   if(NOT EXISTS ${cli_xml_file})
-      message(FATAL_ERROR "Xml file [${cli_xml_file}] doesn't exist !")
+    message(FATAL_ERROR "Xml file [${cli_xml_file}] doesn't exist !")
   endif()
 
   set(CLP ${LOCAL_SEM_NAME})
@@ -104,16 +114,23 @@ macro(SEMMacroBuildCLI)
   endif()
 
   set(cli_targets)
+  set(cli_executable_extra_srcs)
 
   if(NOT LOCAL_SEM_EXECUTABLE_ONLY)
 
-    add_library(${CLP}Lib SHARED ${${CLP}_SOURCE})
+    set(cli_library_type STATIC)
+    if(NOT LOCAL_SEM_BUILD_STATIC_LIBRARY)
+      set(cli_executable_extra_srcs ${LOCAL_SEM_CLI_SHARED_LIBRARY_WRAPPER_CXX})
+      set(cli_library_type SHARED)
+    endif()
+
+    add_library(${CLP}Lib ${cli_library_type} ${${CLP}_SOURCE})
     set_target_properties(${CLP}Lib PROPERTIES COMPILE_FLAGS "-Dmain=ModuleEntryPoint")
     if(DEFINED LOCAL_SEM_TARGET_LIBRARIES)
       target_link_libraries(${CLP}Lib ${LOCAL_SEM_TARGET_LIBRARIES})
     endif()
 
-    add_executable(${CLP} ${LOCAL_SEM_CLI_SHARED_LIBRARY_WRAPPER_CXX})
+    add_executable(${CLP} ${cli_executable_extra_srcs})    
     target_link_libraries(${CLP} ${CLP}Lib)
 
     set(cli_targets ${CLP} ${CLP}Lib)
@@ -145,7 +162,7 @@ macro(SEMMacroBuildCLI)
     set(LOCAL_SEM_ARCHIVE_OUTPUT_DIRECTORY ${SlicerExecutionModel_DEFAULT_CLI_ARCHIVE_OUTPUT_DIRECTORY})
     message(STATUS "WARNING:  Setting default ARCHIVE_OUTPUT_DIRECTORY to ${LOCAL_SEM_ARCHIVE_OUTPUT_DIRECTORY}")
   endif()
-  
+
   set_target_properties(${cli_targets} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${LOCAL_SEM_RUNTIME_OUTPUT_DIRECTORY}"
     LIBRARY_OUTPUT_DIRECTORY "${LOCAL_SEM_RUNTIME_OUTPUT_DIRECTORY}"
