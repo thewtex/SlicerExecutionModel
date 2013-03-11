@@ -18,6 +18,12 @@
       <label>Generate TCLAP Code</label>
       <default>true</default>
     </boolean>
+    <boolean>
+      <name>UseSerializer</name>
+      <longflag>--UseSerializer</longflag>
+      <label>Add serializer flags.</label>
+      <default>false</default>
+    </boolean>
   </parameters>
   <parameters>
     <label>IO</label>

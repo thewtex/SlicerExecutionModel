@@ -35,6 +35,9 @@ endif()
 if(NOT DEFINED GENERATECLP_USE_MD5)
   option(GENERATECLP_USE_MD5 "Enabling that option will teach GenerateCLP to overwrite output file only if needed. Make sure to build ITK with KWSYS_USE_MD5 enabled." OFF)
 endif()
+if(NOT DEFINED GenerateCLP_USE_SERIALIZER)
+  option(GenerateCLP_USE_SERIALIZER "Automatic flags are added to serialize and deserialized the parameters." OFF)
+endif()
 
 #-----------------------------------------------------------------------------
 # Testing

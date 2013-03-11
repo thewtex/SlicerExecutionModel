@@ -37,6 +37,12 @@ macro(GENERATECLP SOURCES XML_FILE)
     set(TMP_INPUT ${CMAKE_CURRENT_SOURCE_DIR}/${TMP_FILENAME}.xml)
   endif()
 
+  if(GenerateCLP_USE_SERIALIZER)
+    set(use_serializer "--UseSerializer")
+  else()
+    set(use_serializer)
+  endif()
+
   # add custom command to output
   if ("x${ARGV2}" STREQUAL "x")
 
@@ -45,6 +51,7 @@ macro(GENERATECLP SOURCES XML_FILE)
       OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}CLP.h
       DEPENDS "${GENERATECLP_EXE}" ${TMP_INPUT}
       COMMAND "${GENERATECLP_EXE}"
+      ${use_serializer}
       --InputXML "${quote}${TMP_INPUT}${quote}"
       --OutputCxx "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}CLP.h${quote}"
       ${verbatim}
@@ -62,6 +69,7 @@ macro(GENERATECLP SOURCES XML_FILE)
       OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}CLP.h
       DEPENDS "${GENERATECLP_EXE}" ${TMP_INPUT} ${ARGV2}
       COMMAND "${GENERATECLP_EXE}"
+      ${use_serializer}
       --logoFiles "${quote}${ARGV2}${quote}"
       --InputXML "${quote}${TMP_INPUT}${quote}"
       --OutputCxx "${quote}${CMAKE_CURRENT_BINARY_DIR}/${TMP_FILENAME}CLP.h${quote}"

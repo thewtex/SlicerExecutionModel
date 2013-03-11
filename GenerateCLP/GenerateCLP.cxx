@@ -277,6 +277,33 @@ main(int argc, char *argv[])
   GeneratePluginProcedures(sout, logoFiles);
   GenerateLOGO(sout, logoFiles);
   GenerateXML(sout);
+  if(UseSerializer)
+    {
+    ModuleParameterGroup serializationGroup;
+    serializationGroup.SetLabel("Parameter Serialization");
+
+    ModuleParameter parametersArchive;
+    parametersArchive.SetTag("file");
+    parametersArchive.SetCPPType("std::string");
+    parametersArchive.SetName("parametersArchive");
+    parametersArchive.SetLongFlag("parametersarchive");
+    parametersArchive.SetDescription("Store the module's parameters to a file.");
+    parametersArchive.SetDefault("");
+    parametersArchive.SetChannel("output");
+    serializationGroup.AddParameter(parametersArchive);
+
+    ModuleParameter parametersToRestore;
+    parametersToRestore.SetTag("file");
+    parametersToRestore.SetCPPType("std::string");
+    parametersToRestore.SetName("parametersToRestore");
+    parametersToRestore.SetLongFlag("parameterstorestore");
+    parametersToRestore.SetDescription("Restore the module's parametetrs that were previously archived.");
+    parametersToRestore.SetDefault("");
+    parametersToRestore.SetChannel("input");
+    serializationGroup.AddParameter(parametersToRestore);
+
+    module.AddParameterGroup(serializationGroup);
+    }
   GenerateTCLAP(sout, module);
   GenerateTCLAPAssignment(sout, module, true);
   GenerateEchoArgs(sout, module);
