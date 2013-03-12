@@ -1,6 +1,8 @@
 find_package(GenerateCLP NO_MODULE REQUIRED)
 include(${GenerateCLP_USE_FILE})
 
+add_definitions(-DGenerateCLP_SERIALIZER_DISABLED)
+
 set( CLPEXAMPLE1_SOURCE CLPExample1.cxx )
 GENERATECLP(CLPEXAMPLE1_SOURCE CLPExample1.xml)
 add_executable( CLPExample1 ${CLPEXAMPLE1_SOURCE})

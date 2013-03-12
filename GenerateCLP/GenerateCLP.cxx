@@ -131,7 +131,7 @@ bool HasDefault(const ModuleParameter &parameter)
 void GeneratePre(std::ostream &, ModuleDescription &, int, char *[]);
 
 /* Generate the last statements. This defines the PARSE_ARGS macro */
-void GeneratePost(std::ostream &);
+void GeneratePost(std::ostream &, const std::string & outputFilePath, bool useSerializer);
 
 /* Generate a function to split a string into a vector of strings. */
 void GenerateSplitString(std::ostream &);
@@ -308,7 +308,7 @@ main(int argc, char *argv[])
   GenerateTCLAPAssignment(sout, module, true);
   GenerateEchoArgs(sout, module);
   GenerateProcessInformationAddressDecoding(sout);
-  GeneratePost(sout);
+  GeneratePost(sout, OutputCxx, UseSerializer);
 #ifndef GENERATECLP_USE_MD5
   sout.close();
 #endif
@@ -1467,9 +1467,19 @@ void GenerateTCLAPAssignment(std::ostream & sout, const ModuleDescription & modu
   sout << "" << std::endl;
 }
 
-void GeneratePost(std::ostream &sout)
+void GeneratePost(std::ostream &sout, const std::string & outputFilePath, bool useSerializer)
 {
   sout << "#define PARSE_ARGS GENERATE_LOGO;GENERATE_XML;GENERATE_TCLAP;GENERATE_ECHOARGS;GENERATE_ProcessInformationAddressDecoding;" << std::endl;
+
+  if(useSerializer)
+    {
+    sout << "\n#ifndef GenerateCLP_SERIALIZER_DISABLED\n";
+
+    const std::string filename = itksys::SystemTools::GetFilenameWithoutLastExtension(outputFilePath);
+    sout << "#  include \"" << filename << "WithSerializer.h\"" << std::endl;
+
+    sout << "#endif // GenerateCLP_SERIALIZER_TESTING" << std::endl;
+    }
 }
 
 void GenerateProcessInformationAddressDecoding(std::ostream &sout)
